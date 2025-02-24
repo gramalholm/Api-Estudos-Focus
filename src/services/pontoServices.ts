@@ -4,9 +4,6 @@ import { Ponto } from "../Models/ponto";
 export async function verifyIfPontoExists(data: Date, funcionarioId: string): Promise<boolean | void>{
     const prisma = new PrismaClient();
     try{
-        await prisma.$connect();
-        console.log("conexão bem sucedida");
-
         if(!data || !funcionarioId){
             throw new Error("Data e funcionário são obrigatórios");
         }
@@ -57,5 +54,39 @@ export async function OpenPonto(data: Date, entrada: Date, funcionarioId: string
 }
 
 export async function ClosePonto(data: Date, saida: Date, funcionarioId: string): Promise<Ponto | void>{
+    const prisma = new PrismaClient();
+    try{
+        if(!data || !saida || !funcionarioId){
+            throw new Error("Data, saída e funcionário são obrigatórios");
+        }
 
+        const Getponto = await prisma.ponto.findFirst({
+            where:{
+                data: data,
+                funcionarioId: funcionarioId
+            }
+        })
+
+        if(!Getponto){
+            throw new Error("Ponto não encontrado");
+        }
+
+        const ponto = await prisma.ponto.update({
+            where:{
+                id: Getponto.id
+            },
+            data:{
+                saida: saida
+            },
+            include:{
+                funcionario: true
+            }
+        });
+
+        return ponto;
+
+    }catch(err){
+        throw err;
+    }
 }
+
