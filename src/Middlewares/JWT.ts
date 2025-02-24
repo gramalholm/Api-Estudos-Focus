@@ -16,7 +16,7 @@ export const generateToken = (userPayload: UserPayload) => {
         return jwt.sign(userPayload, SECRET_KEY, {expiresIn: '2h'});
     }
 
-    const token = jwt.sign(userPayload, SECRET_KEY, {expiresIn: '1h'});
+    const token = jwt.sign(userPayload, SECRET_KEY, {expiresIn: '2h'});
     return token;
 }
 
