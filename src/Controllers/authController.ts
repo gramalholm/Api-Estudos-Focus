@@ -1,4 +1,4 @@
-import { createUser, findFuncByEmail } from '../services/authServices';
+import { createUser, findFuncByEmail, updatePasswordByEmail } from '../services/authServices';
 import { Request, Response } from 'express';
 import { generateToken } from '../Middlewares/JWT';
 
@@ -20,9 +20,10 @@ export class authController{
          }
 
          const token = generateToken({UserId: user.id, UserRole: user.cargo});
+
          res.cookie('token', token, {httpOnly:true, maxAge: maxTime});
 
-         return res.json(token).redirect('/api/ponto'); 
+         return res.redirect('/api/ponto'); 
       }catch(err){
          return res.status(500).json({message: (err as Error).message});
       }
@@ -37,6 +38,7 @@ export class authController{
 
          const user = await createUser(nome, email, senha, cargo);
          const token = generateToken({UserId: user.id, UserRole: user.cargo});
+
          res.cookie('token', token, {httpOnly:true,  maxAge: maxTime});
 
          if(!user){
@@ -47,7 +49,26 @@ export class authController{
 
       }catch(err){
          return res.status(500).json({message: (err as Error).message});
-
      }
+   }
+
+   public static async updatePassword(req: Request, res: Response):Promise<Response|void>{
+      try{
+         const {email, senha} = req.body;
+         if(!email || !senha){
+            return res.status(400).json({message: "Email e senha são obrigatórios"});
+         }
+
+         const updateFunc = await updatePasswordByEmail(email, senha);
+
+         if(!updateFunc){
+            return res.status(404).json({message: "Erro ao atualizar senha"});
+         }
+
+         return res.status(200).json({id: updateFunc.id, mensagem: "Senha atualizada com sucesso"});
+
+      }catch(err){
+         return res.status(500).json({message: (err as Error).message});
+      }
    }
 }

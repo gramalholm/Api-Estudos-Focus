@@ -7,7 +7,6 @@ import { Ponto } from '../Models/ponto';
 export class pontoController{
     public static async abrirPonto(req: Request, res: Response):Promise<Response | void>{
         const token = req.header('Authorization');
-        const {data, hora, funcionarioId} = req.body;
 
         if(!token){
             return res.status(401).json({message: "Token não informado"});
